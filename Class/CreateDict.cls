@@ -140,6 +140,7 @@ Public Function createCellComparisonList(ByVal tblName) As Variant
     createCellComparisonList = arr
 
 End Function
+<<<<<<< HEAD
 ' **********************************
 ' グループ作成 createCellGroupList
 ' 1行目にkey設定
@@ -272,3 +273,5 @@ Public Function createCellListDict(tblName As String, keyColumn As Integer) As D
     Set createCellListDict = dictParent
 
 End Function
+=======
+>>>>>>> 11c2dc4f3a6f82d1ec6efa073ed7124462183f53
