@@ -14,21 +14,24 @@ Option Explicit
 ' 1列目にdictParentカラム名
 ' 2列目以降にdictChild設定
 '{
-'    "cell(2,1)": {
-'        "cell(1,2)": "cell(2,2)",
-'        "cell(1,3)": "cell(2,3)"
+'    "cells(2,keyColumn)": {
+'        "cells(1,1)": "cells(2,1)",
+'        "cells(1,2)": "cells(2,2)",
+'        "cells(1,3)": "cells(2,3)"
 '    },
-'    "cell(3,1)": {
-'        "cell(1,2)": "cell(3,2)",
-'        "cell(1,3)": "cell(3,3)"
+'    "cells(3,keyColumn)": {
+'        "cells(1,1)": "cells(3,1)",
+'        "cells(1,2)": "cells(3,2)",
+'        "cells(1,3)": "cells(3,3)"
 '    },
-'    "cell(4,1)": {
-'        "cell(1,2)": "cell(4,2)",
-'        "cell(1,3)": "cell(4,3)"
+'    "cells(4,keyColumn)": {
+'        "cells(1,1)": "cells(4,1)",
+'        "cells(1,2)": "cells(4,2)",
+'        "cells(1,3)": "cells(4,3)"
 '    }
 '}
 ' **********************************
-Public Function createNestedDict(ByVal tblName As String) As Dictionary
+Public Function createNestedDict(tblName As String, keyColumn As Integer) As Dictionary
     Dim dictChild As Object
     Dim dictParent As Object
     Dim columnFlg As Boolean
@@ -36,21 +39,28 @@ Public Function createNestedDict(ByVal tblName As String) As Dictionary
     Dim i As Integer
     Dim j As Integer
     
+    Dim keyString As String
+    
     i = 2
     Set dictParent = CreateObject("Scripting.Dictionary")
     Do
-        j = 2
+        j = 1
         Set dictChild = CreateObject("Scripting.Dictionary")
+        
         Do While Worksheets(tblName).Cells(1, j) <> ""
             columnFlg = False
-            dictChild(Worksheets(tblName).Cells(1, j).Value) = Worksheets(tblName).Cells(i, j).Value
-            If Worksheets(tblName).Cells(i, j).Value <> "" Then
+            dictChild(Worksheets(tblName).Cells(1, j).value) = Worksheets(tblName).Cells(i, j).value
+            If Worksheets(tblName).Cells(i, j).value <> "" Then
                 columnFlg = True
             End If
             j = j + 1
         Loop
         If columnFlg = False Then Exit Do
-        dictParent.Add (Worksheets(tblName).Cells(i, 1).Value), dictChild
+        
+        keyString = Worksheets(tblName).Cells(i, keyColumn).value
+        If dictParent.Exists(keyString) = False Then
+            dictParent.Add (keyString), dictChild
+        End If
         i = i + 1
     Loop
     
@@ -62,14 +72,14 @@ End Function
 ' 1列目にkey設定
 ' 2列目にvalue設定
 '{
-'    "cell(1,1)":"cell(1,2)",
-'    "cell(2,1)":"cell(2,2)",
-'    "cell(3,1)":"cell(3,2)",
-'    "cell(4,1)":"cell(4,2)",
-'    "cell(5,1)":"cell(5,2)"
+'    "cells(1,1)":"cells(1,2)",
+'    "cells(2,1)":"cells(2,2)",
+'    "cells(3,1)":"cells(3,2)",
+'    "cells(4,1)":"cells(4,2)",
+'    "cells(5,1)":"cells(5,2)"
 '}
 ' **********************************
-Public Function createCellMappingDict(ByVal tblName As String) As Dictionary
+Public Function createCellMappingDict(tblName As String) As Dictionary
     Dim dict As Object
     Dim columnFlg As Boolean
     
@@ -80,7 +90,7 @@ Public Function createCellMappingDict(ByVal tblName As String) As Dictionary
     Set dict = CreateObject("Scripting.Dictionary")
     
     Do While Worksheets(tblName).Cells(i, 1) <> ""
-        dict(Worksheets(tblName).Cells(i, 1).Value) = Worksheets(tblName).Cells(i, 2).Value
+        dict(Worksheets(tblName).Cells(i, 1).value) = Worksheets(tblName).Cells(i, 2).value
         i = i + 1
     Loop
 
@@ -93,24 +103,23 @@ End Function
 ' 2行目以降にvalue設定
 '[
 '    {
-'        "cell(1,1)":"cell(2,1)",
-'        "cell(1,2)":"cell(2,2)",
-'        "cell(1,3)":"cell(2,3)",
-'        "cell(1,4)":"cell(2,4)",
-'        "cell(1,5)":"cell(2,5)"
+'        "cells(1,1)":"cells(2,1)",
+'        "cells(1,2)":"cells(2,2)",
+'        "cells(1,3)":"cells(2,3)",
+'        "cells(1,4)":"cells(2,4)",
+'        "cells(1,5)":"cells(2,5)"
 '    },
 '    {
-'        "cell(1,1)":"cell(3,1)",
-'        "cell(1,2)":"cell(3,2)",
-'        "cell(1,3)":"cell(3,3)",
-'        "cell(1,4)":"cell(3,4)",
-'        "cell(1,5)":"cell(3,5)"
+'        "cells(1,1)":"cells(3,1)",
+'        "cells(1,2)":"cells(3,2)",
+'        "cells(1,3)":"cells(3,3)",
+'        "cells(1,4)":"cells(3,4)",
+'        "cells(1,5)":"cells(3,5)"
 '    }
 ']
-'}
 ' **********************************
 
-Public Function createCellComparisonList(ByVal tblName) As Variant
+Public Function createCellComparisonList(tblName As String) As Variant
     Dim dict As Object
     Dim arr() As Variant
     Dim i As Integer
@@ -124,8 +133,8 @@ Public Function createCellComparisonList(ByVal tblName) As Variant
         Set dict = CreateObject("Scripting.Dictionary")
         Do While Worksheets(tblName).Cells(1, j) <> ""
             rowFlg = False
-            dict(Worksheets(tblName).Cells(1, j).Value) = Worksheets(tblName).Cells(i, j).Value
-            If Worksheets(tblName).Cells(i, j).Value <> "" Then
+            dict(Worksheets(tblName).Cells(1, j).value) = Worksheets(tblName).Cells(i, j).value
+            If Worksheets(tblName).Cells(i, j).value <> "" Then
                 rowFlg = True
             End If
             j = j + 1
@@ -140,7 +149,7 @@ Public Function createCellComparisonList(ByVal tblName) As Variant
     createCellComparisonList = arr
 
 End Function
-<<<<<<< HEAD
+
 ' **********************************
 ' グループ作成 createCellGroupList
 ' 1行目にkey設定
@@ -273,5 +282,5 @@ Public Function createCellListDict(tblName As String, keyColumn As Integer) As D
     Set createCellListDict = dictParent
 
 End Function
-=======
->>>>>>> 11c2dc4f3a6f82d1ec6efa073ed7124462183f53
+
+
